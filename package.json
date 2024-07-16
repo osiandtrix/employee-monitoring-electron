@@ -1,0 +1,216 @@
+{
+	"name": "EMS",
+	"version": "2.6.5",
+	"description": "Desktop client for Cattr",
+	"homepage": "https://axiever.com",
+	"main": "./app/src/app.js",
+	"scripts": {
+		"live": "nodemon --exec electron ./app/src/app.js",
+		"start": "npx electron ./app/src/app.js",
+		"dist": "electron-builder -p never",
+		"build-development": "npx cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --config=./node_modules/laravel-mix/setup/webpack.config.js",
+		"build-watch": "npm run build-development -- --watch",
+		"build-production": "npx cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --config=./node_modules/laravel-mix/setup/webpack.config.js",
+		"build-release": "npx cross-env NODE_ENV=production MAKE_RELEASE=yes node_modules/webpack/bin/webpack.js --progress --config=./node_modules/laravel-mix/setup/webpack.config.js",
+		"package-linux": "npx electron-builder -p never -l appimage deb tar.gz",
+		"package-windows": "npx electron-builder -p never -w portable nsis appx",
+		"package-mac": "npx cross-env CATTR_NOTARIZE=yes electron-builder -p never -m",
+		"package-mac-unsigned": "npx electron-builder -m",
+		"clean-development": "npx cross-env AT_DEVMODE=meow electron ./tools/clean-development.js",
+		"dev-win": "npx cross-env AT_DEVMODE=meow node_modules/.bin/electron.cmd ."
+	},
+	"build": {
+		"appId": "app.axiever.ems",
+		"productName": "Time Attendace App",
+		"directories": {
+			"output": "target"
+		},
+		"nsis": {
+			"oneClick": false,
+			"perMachine": false,
+			"allowToChangeInstallationDirectory": true
+		}
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cattr-app/desktop-application"
+	},
+	"author": {
+		"name": "amazingcat LLC",
+		"email": "team@amazingcat.net"
+	},
+	"license": "SSPL-1.0",
+	"eslintConfig": {
+		"env": {
+			"browser": true,
+			"node": true
+		},
+		"extends": [
+			"eslint:recommended",
+			"plugin:vue/recommended",
+			"airbnb-base"
+		],
+		"globals": {
+			"Atomics": "readonly",
+			"SharedArrayBuffer": "readonly"
+		},
+		"parserOptions": {
+			"ecmaVersion": 2021,
+			"sourceType": "module"
+		},
+		"plugins": [
+			"vue"
+		],
+		"settings": {
+			"import/core-modules": [
+				"electron",
+				"Vue"
+			],
+			"import/resolver": {
+				"node": {
+					"extensions": [
+						".js",
+						".jsx",
+						".vue"
+					]
+				}
+			}
+		},
+		"rules": {
+			"max-len": [
+				"warn",
+				{
+					"code": 120,
+					"ignoreTemplateLiterals": true,
+					"ignoreStrings": true
+				}
+			],
+			"nonblock-statement-body-position": [
+				"warn",
+				"below"
+			],
+			"operator-linebreak": [
+				"warn",
+				"before"
+			],
+			"arrow-parens": [
+				"warn",
+				"as-needed"
+			],
+			"arrow-body-style": [
+				"warn",
+				"as-needed"
+			],
+			"no-multiple-empty-lines": [
+				"error",
+				{
+					"max": 2,
+					"maxEOF": 1
+				}
+			],
+			"max-statements-per-line": [
+				"error",
+				{
+					"max": 2
+				}
+			],
+			"padded-blocks": [
+				"error",
+				"always"
+			],
+			"object-curly-spacing": [
+				"error",
+				"always"
+			],
+			"array-bracket-spacing": [
+				"error",
+				"never"
+			],
+			"curly": [
+				"error",
+				"multi-or-nest"
+			],
+			"no-underscore-dangle": [
+				"off"
+			],
+			"import/no-extraneous-dependencies": [
+				"error",
+				{
+					"devDependencies": true
+				}
+			]
+		}
+	},
+	"eslintIgnore": [
+		"node_modules",
+		"build",
+		"target",
+		"resources"
+	],
+	"dependencies": {
+		"@amazingcat/electron-ipc-router": "1.3.2",
+		"@amazingcat/node-cattr": "3.4.1",
+		"@sentry/electron": "^2.4.1",
+		"axios": "^0.21.1",
+		"better-sqlite3": "^7.5.3",
+		"camera-capture": "^0.0.11",
+		"chalk": "^4.1.1",
+		"electron-hotkey": "0.0.1-alpha.1",
+		"electron-settings": "^4.0.2",
+		"getusermedia": "^2.0.1",
+		"getuservideo": "^0.1.3",
+		"is-plain-obj": "^4.0.0",
+		"keytar": "^7.7.0",
+		"mouse-hooks": "^0.4.1",
+		"nanoid": "^3.1.23",
+		"node-webcam": "^0.8.1",
+		"semver": "^7.3.5",
+		"sequelize": "^6.6.2",
+		"sqlite3": "^5.1.2",
+		"umzug": "^2.3.0",
+		"uuid": "^8.3.2",
+		"vue-axios": "^3.4.1"
+	},
+	"devDependencies": {
+		"@babel/runtime": "^7.14.0",
+		"@sentry/browser": "^6.5.0",
+		"@sentry/integrations": "^6.5.0",
+		"@sentry/webpack-plugin": "^1.15.1",
+		"browser-env": "^3.3.0",
+		"cross-env": "^7.0.3",
+		"debug": "^4.3.1",
+		"dompurify": "^2.2.8",
+		"dotenv": "^10.0.0",
+		"electron": "13.0.1",
+		"electron-builder": "^22.14.13",
+		"electron-notarize": "^1.0.0",
+		"electron-packager": "^15.5.2",
+		"element-theme-chalk": "^2.15.2",
+		"element-ui": "^2.15.2",
+		"eslint": "^7.27.0",
+		"eslint-config-airbnb-base": "^14.2.1",
+		"eslint-plugin-import": "^2.23.4",
+		"eslint-plugin-vue": "^7.10.0",
+		"fstream": "^1.0.12",
+		"laravel-mix": "6.0.19",
+		"marked": "^2.0.6",
+		"mini-css-extract-plugin": "^1.6.0",
+		"minimist": "^1.2.5",
+		"node-abi": "^2.30.0",
+		"node-browser-history": "^2.4.0",
+		"node-global-key-listener": "^0.1.1",
+		"node-navigator": "^1.0.1",
+		"nodemon": "^2.0.20",
+		"postcss": "^8.3.0",
+		"puppeteer": "^1.20.0",
+		"sass": "^1.34.0",
+		"sass-loader": "^11.1.1",
+		"vue": "^2.6.12",
+		"vue-i18n": "^8.24.4",
+		"vue-loader": "^15.9.7",
+		"vue-router": "^3.5.1",
+		"vue-template-compiler": "^2.6.12",
+		"vuedraggable": "^2.24.3",
+		"vuex": "^3.6.2"
+	}
+}

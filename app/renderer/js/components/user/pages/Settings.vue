@@ -1,0 +1,249 @@
+<template>
+  <el-container class="settings-container">
+    <div class="header">
+      <h3 class="header__section-label">
+        {{ $t('Settings') }}
+      </h3>
+    </div>
+
+    <div class="settings__footer">
+      <el-button
+        :loading="loggingOutInProgress"
+        type="secondary"
+        @click="logout"
+      >
+        {{ $t('Logout') }}
+      </el-button>
+      <br>
+    </div>
+  </el-container>
+</template>
+
+<script>
+export default {
+  name: 'Settings',
+  data() {
+
+    return {
+      loggingOutInProgress: false,
+      savingInProgress: false,
+      ssoLoading: false,
+      yesno: [
+        { label: 'Yes', value: true },
+        { label: 'No', value: false },
+      ],
+
+      formData: {},
+      formFields: [],
+      values: {},
+    };
+
+  },
+
+  async mounted() {
+
+    this.$ipc.request('user-preferences/export-structure', {}).then(({ body }) => {
+
+      Object.entries(body.preferences).forEach(([prefKey, prefVal]) => {
+
+        const renderableField = {
+          key: prefKey,
+          label: prefVal.name,
+          value: (typeof prefVal.value !== 'undefined' && prefVal.value !== null) ? prefVal.value : prefVal.default,
+          description: prefVal.description,
+          frontend: {
+            type: (['toggle', 'options'].includes(prefVal.frontend.element)) ? 'select' : prefVal.frontend.element,
+          },
+        };
+
+        if (['options', 'select', 'toggle'].includes(prefVal.frontend.element)) {
+
+          const opts = Object
+            .entries(prefVal.frontend.options)
+            .map(([key, value]) => ({ label: key, value }));
+
+          renderableField.frontend.options = opts;
+
+        } else
+          renderableField.frontend.options = prefVal.frontend.options;
+
+
+        const field = { ...renderableField };
+        this.formFields.push(renderableField);
+        this.$set(this.formData, prefKey, field.value);
+
+      });
+
+    });
+
+  },
+  methods: {
+
+    /**
+     * Handles "sign in webapp" button action
+     * @async
+     */
+    async performSSO() {
+
+      // Set visual loading status
+      this.ssoLoading = true;
+
+      // Fetch URL from remote
+      const req = await this.$ipc.request('auth/request-single-click-redirection', {});
+
+      // Display error if URL request is failed
+      if (req.code !== 200)
+
+        // Show error and unset the loading flag
+        this.$message({ type: 'error', message: `${this.$t('Error')}: ${req.body.message}` });
+
+      else
+
+        // Show success message
+        this.$message({ type: 'success', message: this.$t('Success! Opening your browser...') });
+
+      // Unset loading state
+      this.ssoLoading = false;
+
+    },
+
+    async logout() {
+
+      this.loggingOutInProgress = true;
+      await this.$store.dispatch('stopTrack', { $ipc: this.$ipc });
+      const req = await this.$ipc.request('auth/logout', {});
+      if (req.code === 200)
+        this.$store.dispatch('logout', this.$ipc);
+      else {
+
+        const htmlError = `
+                        <div class="error-message">
+                            <div class="text">
+                                <p>${this.$t('Something went wrong')}</p>
+                                <code>${req.body.message}</code>
+                            </div>
+                        </div>
+                    `;
+        this.$alert(htmlError, this.$t('Logout error'), {
+          dangerouslyUseHTMLString: true,
+          confirmButtonText: `${this.$t('OK')}`,
+          callback: () => {},
+        });
+
+      }
+      this.loggingOutInProgress = false;
+
+    },
+    async onSubmit() {
+
+      this.savingInProgress = true;
+      const res = await this.$ipc.request('user-preferences/set-many', {
+        preferences: { ...this.formData },
+      });
+
+      this.savingInProgress = false;
+
+      if (res.code === 200) {
+
+        if ('language' in this.formData)
+          this.$i18n.locale = this.formData.language;
+
+        this.$alert(
+          this.$t('Settings saved successfully!'),
+          this.$t('Settings'),
+          {
+            confirmButtonText: this.$t('Awesome!'),
+            callback: () => {},
+          },
+        );
+
+      } else {
+
+        this.$alert(
+          res.body.message,
+          this.$t('Settings error'),
+          {
+            confirmButtonText: this.$t('OK'),
+            callback: () => {},
+          },
+        );
+
+      }
+
+    },
+  },
+};
+</script>
+
+<style lang="scss">
+  @import "../../../../scss/imports/variables";
+
+
+  .settings-container {
+    flex-direction: column;
+    padding: 1em 1.5em;
+
+    .account-section {
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 1em;
+
+      .account-data {
+        display: flex;
+        flex-flow: row;
+      }
+    }
+
+    .header {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: $--border-base;
+      padding-bottom: .5em;
+      margin: 0 0 .5em;
+      font-size: 1.5rem;
+
+      &__section-label {
+        margin: 0;
+        font-size: 1.5rem;
+      }
+
+      &.header-fixed {
+        position: fixed;
+        background: rgba(255, 255, 255, 0.3);
+        width: 100%;
+      }
+
+    }
+
+
+    .settings-form {
+      .form-item {
+        label {
+          line-height: initial;
+          font-size: .9em;
+        }
+
+        .el-form-item__content {
+          .el-select {
+            width: 100%;
+          }
+        }
+
+        .el-form-item-comment {
+          color: #444;
+          display: inline-block;
+          font-size: .8em;
+          margin-top: .9em;
+          line-height: 2em;
+        }
+      }
+    }
+
+
+    .settings__footer {
+      text-align: center;
+    }
+  }
+</style>
