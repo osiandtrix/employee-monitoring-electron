@@ -106,6 +106,7 @@ export default {
         hostname: null,
         login: null,
         password: null,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
       step: 1,
       valid: true,
@@ -197,6 +198,7 @@ export default {
       const auth = await this.$ipc.request(ipcRoute, {
         username: this.formData.login,
         password: this.formData.password,
+        timezone: this.formData.timezone,
       });
 
       let payload = { email: this.formData.login, password: this.formData.password};
