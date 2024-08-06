@@ -134,6 +134,17 @@ export default {
   },
 
   methods: {
+
+    async fetchTotalTime() {
+      try {
+        const totalTime = await this.$ipc.request('time/total', {});
+        this.totalTime = totalTime.body;
+        this.$store.dispatch('totalTimeSync', totalTime.body);
+      } catch (error) {
+        console.error("Failed to fetch total time:", error);
+      }
+    },
+
     /**
      * Opens this task details
      */
@@ -206,7 +217,7 @@ export default {
           .then(() => {
 
             this.$emit('trackEnd', this.task);
-
+            await this.fetchTotalTime();
             // Allow click only after some amount of time
             setTimeout(() => {
 
@@ -242,7 +253,7 @@ export default {
         .then(() => {
 
           this.$emit('trackStart', this.task);
-
+          await this.fetchTotalTime();
           // Allow click only after some amount of time
           setTimeout(() => {
 

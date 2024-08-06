@@ -23,21 +23,44 @@
 		"appId": "app.axiever.ems",
 		"productName": "Time Attendace App",
 		"directories": {
-			"output": "target"
+		"output": "dist"
 		},
 		"nsis": {
 			"oneClick": false,
 			"perMachine": false,
 			"allowToChangeInstallationDirectory": true
+		},
+		"win": {
+		"target": [
+			"nsis",
+			"portable"
+		],
+		"icon": "path/to/icon.ico"
+		},
+		"mac": {
+		"target": [
+			"dmg",
+			"mas" 
+		],
+		"icon": "path/to/icon.icns",
+		"category": "public.app-category.utilities"
+		},
+		"linux": {
+		"target": [
+			"AppImage",
+			"deb",
+			"rpm"
+		],
+		"icon": "path/to/icon.png"
 		}
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cattr-app/desktop-application"
+		"url": "https://github.com/osiandtrix/employee-monitoring-electron"
 	},
 	"author": {
-		"name": "amazingcat LLC",
-		"email": "team@amazingcat.net"
+		"name": "Deepak Kumar",
+		"email": "deepakdev576@gmail.com"
 	},
 	"license": "SSPL-1.0",
 	"eslintConfig": {
