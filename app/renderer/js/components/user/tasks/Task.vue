@@ -18,20 +18,20 @@
         class="project-name clickable"
         @click="openProject"
       >
-         {{ projectName }}
+        {{ projectName }}
       </p>
     </el-col>
     <el-col
       class="task-controls"
       :span="4"
     >
-    <el-button
+      <el-button
         class="task-toggler"
-        :disabled=true
+        :disabled="true"
         :type="'primary'"
         :plain="!active"
       >
-        {{trackedTime}}
+        {{ trackedTime }}
       </el-button>
       <!-- <el-button
         :class="{ pinned: isPinned }"
@@ -53,7 +53,7 @@
         :plain="!active"
         @click="track"
       >
-        {{!active ? "Start" : "Pause" }}
+        {{ !active ? "Start" : "Pause" }}
       </el-button>
     </el-col>
   </el-row>
@@ -136,13 +136,20 @@ export default {
   methods: {
 
     async fetchTotalTime() {
+
       try {
+
         const totalTime = await this.$ipc.request('time/total', {});
         this.totalTime = totalTime.body;
         this.$store.dispatch('totalTimeSync', totalTime.body);
+
       } catch (error) {
-        console.error("Failed to fetch total time:", error);
+
+        // eslint-disable-next-line no-console
+        console.error('Failed to fetch total time:', error);
+
       }
+
     },
 
     /**
@@ -214,7 +221,7 @@ export default {
 
         this.$store
           .dispatch('stopTrack', { $ipc: this.$ipc })
-          .then(() => {
+          .then(async () => {
 
             this.$emit('trackEnd', this.task);
             await this.fetchTotalTime();
@@ -250,7 +257,7 @@ export default {
       // Starting this task
       this.$store
         .dispatch('startTrack', { $ipc: this.$ipc, taskId: this.task.id })
-        .then(() => {
+        .then(async () => {
 
           this.$emit('trackStart', this.task);
           await this.fetchTotalTime();
